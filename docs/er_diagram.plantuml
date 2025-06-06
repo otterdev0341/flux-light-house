@@ -4,6 +4,7 @@
 entity AssetType {
   *id : INT <<PK>>
   *name : VARCHAR
+  *description : TEXT
   *created_at : DATETIME
   *updated_at : DATETIME
   user_id : INT <<FK>>
@@ -23,6 +24,7 @@ entity Asset {
 entity ExpenseType {
   *id : INT <<PK>>
   *name : VARCHAR
+  *description : TEXT
   *created_at : DATETIME
   *updated_at : DATETIME
   user_id : INT <<FK>>
@@ -42,6 +44,7 @@ entity Expense {
 entity ContactType {
   *id : INT <<PK>>
   *name : VARCHAR -- 'Customer' or 'Vendor'
+  
   *created_at : DATETIME
   *updated_at : DATETIME
   user_id : INT <<FK>>
@@ -51,6 +54,7 @@ entity ContactType {
 entity Contact {
   *id : INT <<PK>>
   *name : VARCHAR
+  *description : TEXT
   *business_name : VARCHAR
   *phone : VARCHAR
   *description : TEXT
@@ -99,6 +103,13 @@ entity IncomeTransaction {
   *contact_id : INT <<FK NULLABLE>>
 }
 
+entity IncomeSource {
+  *id : INT <<PK>>
+  *income_transaction_id : INT <<FK>>
+  *asset_id : INT <<FK>>
+  *quantity : INT -- Quantity of the income source
+  *amount : DECIMAL(10,2) -- Amount for this income source
+}
 
 entity PaymentTransaction {
   *transaction_id : INT <<PK>> <<FK>>
@@ -106,6 +117,13 @@ entity PaymentTransaction {
   *contact_id : INT <<FK NULLABLE>>
 }
 
+entity PaymentExpense {
+  *id : INT <<PK>>
+  *payment_transaction_id : INT <<FK>>
+  *expense_id : INT <<FK>>
+  *quantity : INT -- Quantity of the expense item
+  *amount : DECIMAL(10,2) -- Amount for this expense item
+}
 
 entity TransferTransaction {
   *transaction_id : INT <<PK>> <<FK>>
@@ -123,10 +141,35 @@ entity CurrentSheet {
   user_id : INT <<FK>>
 }
 
+entity CurrentExpense {
+  *id : INT <<PK>>
+  *expense_id : INT <<FK>>
+  *amount : DECIMAL(10,2)
+  *last_transaction_id : INT <<FK NULLABLE>>
+  *updated_at : DATETIME
+  user_id : INT <<FK>>
+}
+
+entity Entry {
+  *id : INT <<PK>>
+  *transaction_id : INT <<FK>>
+  *current_sheet_id : INT <<FK>>
+  *entry_type : VARCHAR(10) -- "Debit" or "Credit"
+  *amount : DECIMAL(10,2)
+  *created_at : DATETIME
+}
+
+entity EntryType {
+  *id : INT <<PK>>
+  *name : VARCHAR(20) -- "Debit" or "Credit"
+  *created_at : DATETIME
+  *updated_at : DATETIME
+}
+
 ' Done
 entity Gender {
   *id : INT <<PK>>
-  *name : VARCHAR(20) -- "Male", "Female", "Other"
+  *detail : VARCHAR(20) -- "Male", "Female", "Other"
   *created_at : DATETIME
   *updated_at : DATETIME
 }
@@ -209,5 +252,19 @@ Contact ||--o{ PaymentTransaction : contact_id
 Asset ||--o{ TransferTransaction : source_asset_id
 Asset ||--o{ TransferTransaction : destination_asset_id
 
+PaymentTransaction ||--o{ PaymentExpense : payment_transaction_id
+Expense ||--o{ PaymentExpense : expense_id
 
+TransactionType ||--o{ Transaction : transaction_type_id
+Transaction ||--o{ IncomeTransaction : transaction_id
+
+IncomeTransaction ||--o{ IncomeSource : income_transaction_id
+Asset ||--o{ IncomeSource : asset_id
+
+Transaction ||--o{ Entry : transaction_id
+CurrentSheet ||--o{ Entry : current_sheet_id
+EntryType ||--o{ Entry : entry_type_id
+Expense ||--o{ CurrentExpense : expense_id
+Transaction ||--o{ CurrentExpense : last_transaction_id
+User ||--o{ CurrentExpense : user_id
 @enduml

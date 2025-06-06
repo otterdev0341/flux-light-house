@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 
-import reactor.core.publisher.Mono;
+
 
 @RestController
 @RequestMapping("/api/v1")
@@ -16,9 +16,9 @@ public class User {
     // For example, you might have methods for creating, updating, deleting, and retrieving users.
     
     @GetMapping("/user/{userId}")
-    public Mono<String> getUserDetails(@PathVariable(value = "userId") String userId) {
+    public String getUserDetails(@PathVariable(value = "userId") String userId) {
         
-        return Mono.just("User details for userId: " + userId);
+        return "User details for userId: " + userId;
     }
     
     // Additional methods can be added as needed
