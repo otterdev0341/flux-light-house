@@ -9,9 +9,9 @@ import org.springframework.web.reactive.config.EnableWebFlux;
 
 @SpringBootApplication
 @EnableWebFlux
-@EnableR2dbcRepositories
+@EnableR2dbcRepositories("com.light_house.app.infrastructure.repository")
 @EntityScan("com.light_house.app.domain.entity")
-@ComponentScan("com.light_house.app.infrastructure.controller, com.light_house.app.infrastructure.repository, com.light_house.app.infrastructure.service")
+@ComponentScan({"com.light_house.app.infrastructure.controller, com.light_house.app.infrastructure.repository, com.light_house.app.infrastructure.service", "com.light_house.app.config"})
 public class AppApplication {
 
 	public static void main(String[] args) {
