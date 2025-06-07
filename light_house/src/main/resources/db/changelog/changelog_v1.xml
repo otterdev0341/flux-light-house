@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+
+    <!-- create gender table -->
+    <changeSet id="1" author="otterdev">
+        <createTable tableName="gender">
+            <column name="id" type="char(36)" defaultValueComputed="UUID()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="detail" type="varchar(50)" >
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="created_at" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"/>
+        </createTable>
+    </changeSet>  <!-- end migrate 1-->
+    
+    <!-- create role table -->
+    <changeSet id="2" author="otterdev">
+        <createTable tableName="role">
+            <column name="id" type="char(36)" defaultValueComputed="UUID()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="detail" type="varchar(50)" >
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="created_at" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"/>
+        </createTable>
+    </changeSet>
+
+    <!-- create user table -->
+    <changeSet id="3" author="otterdev">
+        <createTable tableName="user">
+            <column name="id" type="char(36)" defaultValueComputed="UUID()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="mcp_feature" type="boolean" defaultValue="false">
+                <constraints nullable="false" />
+            </column>
+            <column name="gender_id" type="char(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="role_id" type="char(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"/>
+            <column name="username" type="varchar(25)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="password" type="varchar(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="varchar(50)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="first_name" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_name" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="mcp_token" type="char(36)" defaultValueComputed="UUID()">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <!-- add foreign key from user to gender -->
+    <changeSet id="4" author="otterdev">
+        <addForeignKeyConstraint
+            baseTableName="user"
+            baseColumnNames="gender_id"
+            referencedTableName="gender"
+            referencedColumnNames="id"
+            constraintName="fk_user_gender"/>
+    </changeSet>
+
+    <!-- add foreign key from user to role -->
+    <changeSet id="5" author="otterdev">
+        <addForeignKeyConstraint
+            baseTableName="user"
+            baseColumnNames="role_id"
+            referencedTableName="role"
+            referencedColumnNames="id"
+            constraintName="fk_user_role"/>
+    </changeSet>
+    <!-- in case not specific role, default is user -->
+    <changeSet id="6" author="otterdev">
+        <!-- <sql splitStatements="false" stripComments="true">
+            DROP TRIGGER IF EXISTS set_default_role;
+            CREATE TRIGGER set_default_role
+            BEFORE INSERT ON user
+            FOR EACH ROW
+            BEGIN
+                IF NEW.role_id IS NULL THEN
+                    SET NEW.role_id = (SELECT id FROM role WHERE detail = 'user' LIMIT 1);
+                END IF;
+            END;
+        </sql> -->
+    </changeSet>
+    
+
+    <!-- create expense type table -->
+    <changeSet id="7" author="otterdev">
+        <createTable tableName="expense_type">
+            <column name="id" type="char(36)" defaultValueComputed="UUID()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="detail" type="varchar(50)" >
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="created_at" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"/>
+            <column name="created_by" type="char(36)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint
+            baseTableName="expense_type"
+            baseColumnNames="created_by"
+            referencedTableName="user"
+            referencedColumnNames="id"
+            constraintName="fk_expense_type_created_by_user"/>
+    </changeSet>
+
+    <!-- create expense table -->
+    <changeSet id="8" author="otterdev">
+        <createTable tableName="expense">
+            <column name="id" type="char(36)" defaultValueComputed="UUID()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="detail" type="varchar(80)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="expense_type_id" type="char(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_by" type="char(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"/>
+        </createTable>
+        <addForeignKeyConstraint 
+            baseTableName="expense" 
+            baseColumnNames="created_by" 
+            referencedTableName="user" 
+            referencedColumnNames="id"
+            constraintName="fk_expense_user" 
+             />
+        <addForeignKeyConstraint 
+            baseTableName="expense" 
+            baseColumnNames="expense_type_id" 
+            referencedTableName="expense_type" 
+            referencedColumnNames="id"
+            constraintName="fk_expense_expense-type"  
+            />
+    </changeSet>
+
+    <!-- create contact type table -->
+     <changeSet id="9" author="oterdev">
+        <createTable tableName="contact_type">
+            <column name="id" type="char(36)" defaultValueComputed="UUID()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="detail" type="varchar(50)" >
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="created_by" type="char(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"/>
+        </createTable>
+        <addForeignKeyConstraint 
+            baseTableName="contact_type" 
+            baseColumnNames="created_by" 
+            referencedTableName="user" 
+            referencedColumnNames="id" 
+            constraintName="fx_contact-type_user" 
+            />
+     </changeSet>
+     
+    <!-- create contact table -->
+    <changeSet id="10" author="oterdev">
+        <createTable tableName="contact">
+            <column name="id" type="char(36)" defaultValueComputed="UUID()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="detail" type="varchar(80)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="business_name" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="phone" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="contact_type_id" type="char(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"/>
+        </createTable>
+        <addForeignKeyConstraint 
+            baseTableName="contact" 
+            baseColumnNames="contact_type_id" 
+            referencedTableName="contact_type" 
+            referencedColumnNames="id"
+            constraintName="fk_contact_contact-type"  
+            />
+    </changeSet>
+    
+    <!-- create asset type table -->
+    <changeSet id="11" author="oterdev">
+        <createTable tableName="asset_type">
+            <column name="id" type="char(36)" defaultValueComputed="UUID()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="detail" type="varchar(50)" >
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="created_by" type="char(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"/>
+        </createTable>
+        <addForeignKeyConstraint 
+            baseTableName="asset_type" 
+            baseColumnNames="created_by" 
+            referencedTableName="user" 
+            referencedColumnNames="id"
+            constraintName="fk_asset-type_user"
+             />
+    </changeSet>
+
+    <!-- create asset table -->
+    <changeSet id="12" author="oterdev">
+        <createTable tableName="asset">
+            <column name="id" type="char(36)" defaultValueComputed="UUID()">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="detail" type="varchar(80)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="asset_type_id" type="char(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_by" type="char(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP"/>
+            <column name="updated_at" type="datetime" defaultValueComputed="CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"/>
+        </createTable>
+        <addForeignKeyConstraint 
+            baseTableName="asset" 
+            baseColumnNames="created_by" 
+            referencedTableName="user" 
+            referencedColumnNames="id"
+            constraintName="fk_asset_user"
+             />
+        <addForeignKeyConstraint 
+            baseTableName="asset" 
+            baseColumnNames="asset_type_id" 
+            referencedTableName="asset_type" 
+            referencedColumnNames="id"
+            constraintName="fk_asset_asset-type"
+             />
+    </changeSet>
+    
+    <changeSet id="13" author="otterdev">
+        <createTable tableName="contact_user">
+            <column name="contact_id" type="char(36)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="char(36)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addPrimaryKey 
+            tableName="contact_user" 
+            columnNames="contact_id, user_id" 
+            constraintName="pk_contact_user"/>
+        <addForeignKeyConstraint
+            baseTableName="contact_user"
+            baseColumnNames="contact_id"
+            referencedTableName="contact"
+            referencedColumnNames="id"
+            constraintName="fk_contact_user_contact"/>
+        <addForeignKeyConstraint
+            baseTableName="contact_user"
+            baseColumnNames="user_id"
+            referencedTableName="user"
+            referencedColumnNames="id"
+            constraintName="fk_contact_user_user"/>
+    </changeSet>
+
+</databaseChangeLog>

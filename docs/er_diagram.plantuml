@@ -3,61 +3,62 @@
 ' Done
 entity AssetType {
   *id : INT <<PK>>
-  *name : VARCHAR
+  *detail : VARCHAR
   *description : TEXT
   *created_at : DATETIME
   *updated_at : DATETIME
-  user_id : INT <<FK>>
+  created_by : INT <<FK>>
 }
 
 ' Done
 entity Asset {
   *id : INT <<PK>>
-  *name : VARCHAR
+  *detail : VARCHAR
+  *description : TEXT
   *asset_type_id : INT <<FK>>
   *created_at : DATETIME
   *updated_at : DATETIME
-  user_id : INT <<FK>>
+  created_by : INT <<FK>>
 }
 
 ' Done
 entity ExpenseType {
   *id : INT <<PK>>
-  *name : VARCHAR
+  *detail : VARCHAR
   *description : TEXT
   *created_at : DATETIME
   *updated_at : DATETIME
-  user_id : INT <<FK>>
+  created_by : INT <<FK>>
 }
 
 ' Done
 entity Expense {
   *id : INT <<PK>>
-  *description : VARCHAR
+  *detail : VARCHAR
+  *description : TEXT
   *expense_type_id : INT <<FK>>
   *created_at : DATETIME
   *updated_at : DATETIME
-  user_id : INT <<FK>>
+  created_by : INT <<FK>>
 }
 
 ' Done
 entity ContactType {
   *id : INT <<PK>>
-  *name : VARCHAR -- 'Customer' or 'Vendor'
-  
+  *detail : VARCHAR -- 'Customer' or 'Vendor'
+  *description : TEXT
   *created_at : DATETIME
   *updated_at : DATETIME
-  user_id : INT <<FK>>
+  created_by : INT <<FK>>
 }
 
 ' Done
 entity Contact {
   *id : INT <<PK>>
-  *name : VARCHAR
+  *detail : VARCHAR
   *description : TEXT
   *business_name : VARCHAR
   *phone : VARCHAR
-  *description : TEXT
   *contact_type_id : INT <<FK>>
   *created_at : DATETIME
   *updated_at : DATETIME
@@ -66,7 +67,7 @@ entity Contact {
 
 entity TransactionType {
   *id : INT <<PK>>
-  *name : VARCHAR(50) -- "Income", "Payment", "Transfer"
+  *detail : VARCHAR(50) -- "Income", "Payment", "Transfer"
   *created_at : DATETIME
   *updated_at : DATETIME
 }
@@ -193,7 +194,7 @@ entity User {
 ' Done
 entity UserRole {
   *id : INT <<PK>>
-  *name : VARCHAR(50)
+  *detail : VARCHAR(50)
   *created_at : DATETIME
   *updated_at : DATETIME
 }
